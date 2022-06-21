@@ -17,10 +17,23 @@ def get_links(text: str):
     return result
 
 
+def get_tags(text: str):
+    pattern = r'(\B(\#[a-zA-Z]+\b)(?!;))'
+    hashtags = re.findall(pattern, text)
+
+    result = []
+    for hashtag, _ in hashtags:
+        result.append(
+            Extra(text=hashtag, offset=text.find(hashtag), length=len(hashtag), type='hashtag')
+        )
+
+    return
+
 def get_extra(text: str):
     """Находит в тексте экстра-данные: ссылки, упоминания и т.д."""
     extra = []
 
     extra += get_links(text)
+    extra += get_tags(text)
 
     return extra

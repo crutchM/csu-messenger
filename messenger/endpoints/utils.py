@@ -1,5 +1,6 @@
 """Различные методы проверки функционала"""
 import json
+import threading
 from datetime import datetime
 from os import getenv
 import pytz
@@ -17,6 +18,7 @@ from util import async_query
 
 router = APIRouter(prefix="/utils")
 
+mutex = threading.Lock()
 
 @router.post("/send_celery_task")
 def send_celery_task(begin_datetime: datetime):
@@ -84,6 +86,9 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, db=Depends(get_
     while True:
         data: Message = await websocket.receive_json()
         if data is not None:
+            mutex.acquire()
+            data.text = await async_query("http://localhost:8081/process", data.text)
+            mutex.release()
             crud.create(db, data)
             redis.publish(f"chat-{chat_id}", data.convert())
         else:
