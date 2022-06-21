@@ -4,7 +4,7 @@ import threading
 
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
-import exceptions
+
 import crud.message as crud
 from core.broker.redis import redis
 from deps import get_current_user, get_db
@@ -20,21 +20,21 @@ router = APIRouter(prefix="/message")
 async def get_message(message, user=Depends(get_current_user), db=Depends(get_db)):
     """Получить сообщение"""
     msg = crud.get_by_id(db, message.id)
-    exceptions.not_found(msg)
+    not_found(msg)
     return msg
 
 @router.get("/my", response_model=MessageInDb)
 async def get_my_messages(user=Depends(get_current_user), db=Depends(get_db)):
     """все сообщения юзера"""
     msg = crud.get_all_by_user(db, user)
-    exceptions.not_found(msg)
+    not_found(msg)
     return msg
 
 @router.get("/byChat", response_model=MessageInDb)
 async def get_all_in_chat(chat, user=Depends(get_current_user), db=Depends(get_db)):
     """Все сообщения в чате"""
     msg = crud.get_all_in_chat(db, chat)
-    exceptions.not_found(msg)
+    not_found(msg)
     return msg
 
 
@@ -42,7 +42,7 @@ async def get_all_in_chat(chat, user=Depends(get_current_user), db=Depends(get_d
 async def delete(message, user=Depends(get_current_user), db=Depends(get_db)):
     """Удаление"""
     msg = crud.get_by_id(db, message)
-    exceptions.forbidden(msg)
+    forbidden(msg)
     crud.delete(db, message)
 
 
@@ -56,7 +56,7 @@ async def edit(message: MessageInDb, user=Depends(get_current_user), db=Depends(
     message.text = await async_query("http://localhost:8081/process", message.text)
     mutex.release()
     msg = crud.edit(db, message)
-    exceptions.forbidden(msg)
+    forbidden(msg)
     return msg
 
 
@@ -73,3 +73,12 @@ async def make_scheduled_message(message: DatedMessage, user=Depends(get_current
             redis.publish(f"chat-{result.chat_id}", result.convert())
             break
     return result
+
+
+def not_found(obj):
+    if obj in None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+
+def forbidden(obj):
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)

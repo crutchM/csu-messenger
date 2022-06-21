@@ -23,7 +23,6 @@ mutex = threading.Lock()
 @router.post("/send_celery_task")
 def send_celery_task(begin_datetime: datetime):
     """Запускает выполнение задачи queue.test
-    
     Args:
         begin_datetime: datetime, когда запустить задачу
     """
@@ -76,6 +75,7 @@ async def ws_page():
 
 @router.websocket("/ws/{chat_id}")
 async def websocket_endpoint(websocket: WebSocket, chat_id: int, db=Depends(get_db)):
+    """подключение к чату"""
     if chat_id is None:
         return
     await websocket.accept()

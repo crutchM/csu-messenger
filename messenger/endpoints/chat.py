@@ -6,7 +6,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
-import exceptions
+
 from deps import get_current_user, get_db
 from schemas.chat import ChatInDb, Chat
 import crud.chat as crud
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/chat")
 async def get_chat(chat_id, user_id=Depends(get_current_user), db=Depends(get_db)):
     """получить по Id"""
     chat = crud.get_by_id(db, chat_id)
-    exceptions.not_found(chat)
+    not_found(chat)
     return chat
 
 
@@ -28,7 +28,7 @@ async def get_chat(chat_id, user_id=Depends(get_current_user), db=Depends(get_db
 async def get_chat_members(chat_id, user_id=Depends(get_current_user), db=Depends(get_db)):
     """Все пользователи"""
     members = crud.get_members(db, chat_id)
-    exceptions.not_found(members)
+    not_found(members)
     return members
 
 
@@ -36,7 +36,7 @@ async def get_chat_members(chat_id, user_id=Depends(get_current_user), db=Depend
 async def get_my_chats(user=Depends(get_current_user), db=Depends(get_db)):
     """мои чаты"""
     chats = crud.get_all_chats_by_user(db, user)
-    exceptions.not_found(chats)
+    not_found(chats)
     return chats
 
 
@@ -45,3 +45,12 @@ async def create_chat(chat: Chat, user=Depends(get_current_user), db=Depends(get
     """Создать"""
     res = crud.create_chat(db, user, chat)
     return res
+
+
+def not_found(obj):
+    if obj in None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+
+def forbidden(obj):
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)

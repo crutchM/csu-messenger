@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 import schemas.message
 from core.db.models import UserChat, Message
 from crud import chat as cr
-from schemas.message import Message, MessageInDb
+from schemas.message import Message, MessageInDb, DatedMessage
 
 
 def create(db: Session, message: Message):
@@ -55,7 +55,7 @@ def get_all_in_chat(db: Session, chat_id: int, limit: int()):
     else:
         result = query.all()
 
-    return [schemas.MessageInDb(id=pair[0].id, user_id=pair[1].user_id, chat_id=pair[1].chat_id, text=pair[0].text,
+    return [MessageInDb(id=pair[0].id, user_id=pair[1].user_id, chat_id=pair[1].chat_id, text=pair[0].text,
                                 edited=pair[0].edited, read=pair[0].read) for pair in result]
 
 
@@ -68,12 +68,12 @@ def edit(db: Session, message: MessageInDb):
     return message_db
 
 
-def create_sheduled_message(db: Session, message: schemas.DatedMessage):
+def create_sheduled_message(db: Session, message: DatedMessage):
     user_chat: UserChat = cr.get_userchat(db, message.user_id, message.chat_id)
     if user_chat is None:
         return False
     message_db = Message(user_chat_id=user_chat.id, text=message.text, edited=False, read=False,
-                         created_date=datetime.strptime(message.created_date, "%Y-%m-%d %H:%M:%S"), maybesent=False)
+                         created_date=datetime.strptime(message.created, "%Y-%m-%d %H:%M:%S"), maybesent=False)
     db.add(message_db)
     db.commit()
 

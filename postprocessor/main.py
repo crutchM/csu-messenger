@@ -22,7 +22,7 @@ def process_text(text: str):
         if extra['type'] == 'link':
             text = text.replace(extra['text'], f"<a href='{extra['text']}'>{extra['text']}</a>")
         if extra['type'] == 'hashtag':
-            text = text.replace(extra['text'], f"<a href=''>{extra['text']}</a>")
+            text = text.replace(extra['text'], f"<a href='#'>{extra['text']}</a>")
     return text
 
 
