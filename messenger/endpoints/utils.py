@@ -1,15 +1,19 @@
 """Различные методы проверки функционала"""
+import json
 from datetime import datetime
 from os import getenv
 import pytz
 
-from fastapi import APIRouter, WebSocket, Body
+from fastapi import APIRouter, WebSocket, Body, Depends
 from fastapi.responses import HTMLResponse
 
 from core.broker.celery import celery_app
 from core.broker.redis import redis
-from utils import async_query
-
+import asyncio
+import crud.message as crud
+from deps import get_db
+from schemas.message import Message
+from util import async_query
 
 router = APIRouter(prefix="/utils")
 
@@ -68,20 +72,26 @@ async def ws_page():
     return HTMLResponse(html)
 
 
-@router.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: int):
-    if user_id is None:
+@router.websocket("/ws/{chat_id}")
+async def websocket_endpoint(websocket: WebSocket, chat_id: int, db=Depends(get_db)):
+    if chat_id is None:
         return
-
     await websocket.accept()
     pubsub = redis.pubsub()
-    await pubsub.subscribe(f"user-{user_id}")
+
+    await pubsub.subscribe(f"chat-{chat_id}")
 
     while True:
-        message = await pubsub.get_message(ignore_subscribe_messages=True)
+        data: Message = await websocket.receive_json()
+        if data is not None:
+            crud.create(db, data)
+            redis.publish(f"chat-{chat_id}", data.convert())
+        else:
+            message = await pubsub.get_message(ignore_subscribe_messages=True)
+            if message:
+                await websocket.send_text(message["data"].decode())
 
-        if message:
-            await websocket.send_text(message["data"].decode())
+
 
 
 @router.get("/ws-pubsub")

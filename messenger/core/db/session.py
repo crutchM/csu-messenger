@@ -1,14 +1,7 @@
-from os import getenv
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-USER = getenv("POSTGRES_USER")
-PASSWORD = getenv("POSTGRES_PASSWORD")
-DB_PORT = getenv("DB_PORT")
-DB_NAME = getenv("POSTGRES_DB")
 
-db_url = f"postgresql://{USER}:{PASSWORD}@postgres:{DB_PORT}/{DB_NAME}"
-# sqllite_url = "sqlite://"
+db_url = "mysql+pymysql://root:22334455@192.168.0.106:3306/messenger"
 engine = create_engine(db_url)
 session = sessionmaker(engine)

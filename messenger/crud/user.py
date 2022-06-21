@@ -19,6 +19,7 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 def get_user_by_login(db: Session, login: str):
+
     return db.query(User).filter(User.login == login).one_or_none()
 
 

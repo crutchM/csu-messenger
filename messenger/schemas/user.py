@@ -15,3 +15,5 @@ class UserInDB(User):
 
     class Config:
         orm_mode = True
+
+
