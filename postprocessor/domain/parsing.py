@@ -17,6 +17,20 @@ def get_links(text: str):
     return result
 
 
+def get_mentions(text: str):
+    """Находит упоминания в тексте"""
+    pattern = r'(\B(\@[a-zA-Z1-9]+\b)(?!;))'
+    mentions = re.findall(pattern, text)
+
+    result = []
+    for mention, _ in mentions:
+        result.append(
+            Extra(text=mention, offset=text.find(mention), length=len(mention), type='mention')
+        )
+
+    return result
+
+
 def get_tags(text: str):
     pattern = r'(\B(\#[a-zA-Z]+\b)(?!;))'
     hashtags = re.findall(pattern, text)

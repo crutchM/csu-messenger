@@ -23,6 +23,9 @@ def process_text(text: str):
             text = text.replace(extra['text'], f"<a href='{extra['text']}'>{extra['text']}</a>")
         if extra['type'] == 'hashtag':
             text = text.replace(extra['text'], f"<a href='#'>{extra['text']}</a>")
+        elif extra['type'] == 'mention':
+            text = text.replace(extra['text'],
+                                f"<a href='https://t.me/{extra['text'][1:]}' target=\"_blank\">{extra['text']}</a>")
     return text
 
 
