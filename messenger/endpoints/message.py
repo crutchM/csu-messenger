@@ -75,6 +75,16 @@ async def make_scheduled_message(message: DatedMessage, user=Depends(get_current
     return result
 
 
+@router.get("/create")
+async def create_message(message, user=Depends(get_current_user), db=Depends(get_db())):
+    mutex.acquire()
+    message.text = await async_query("http://localhost:8081/process", message.text)
+    mutex.release()
+    message.user_id = user
+    msg = crud.create(db, message)
+    redis.publish(f"chat_id-{message.chat_id}", msg.convert())
+
+
 def not_found(obj):
     if obj in None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

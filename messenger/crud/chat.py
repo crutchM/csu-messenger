@@ -23,7 +23,7 @@ def create_chat(db: Session, user_id:int, chat: sc.Chat):
 
 
 def add_user(db: Session, chat_user: su.UserChat):
-    user_chat_db = su.UserChat(user_id=chat_user.user_id, chat_id=chat_user.chat_id)
+    user_chat_db = UserChat(user_id=chat_user.user_id, chat_id=chat_user.chat_id)
     db.add(user_chat_db)
     db.commit()
     return user_chat_db
@@ -46,7 +46,7 @@ def get_members(db: Session, chat_id:int):
     return db.query(User).filter(User.id.in_(members)).all()
 
 
-def get_all_chats_by_user(db: Session, user_id:int):
+def get_all_chats_by_user(db: Session, user_id: int):
     chats = [id[0] for id in (db.query(UserChat.chat_id).filter(UserChat.user_id == user_id).all())]
     return db.query(Chat).filter(Chat.id.in_(chats)).all()
 

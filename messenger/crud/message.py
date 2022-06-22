@@ -55,8 +55,8 @@ def get_all_in_chat(db: Session, chat_id: int, limit: int()):
     else:
         result = query.all()
 
-    return [MessageInDb(id=pair[0].id, user_id=pair[1].user_id, chat_id=pair[1].chat_id, text=pair[0].text,
-                                edited=pair[0].edited, read=pair[0].read) for pair in result]
+    return [MessageInDb(id=userchat[0].id, user_id=userchat[1].user_id, chat_id=userchat[1].chat_id, text=userchat[0].text,
+                                edited=userchat[0].edited, read=userchat[0].read) for userchat in result]
 
 
 def edit(db: Session, message: MessageInDb):

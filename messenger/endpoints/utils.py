@@ -91,6 +91,7 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, db=Depends(get_
             mutex.release()
             crud.create(db, data)
             redis.publish(f"chat-{chat_id}", data.convert())
+            """or: create message by post hhtp method, and get messages from redis"""
         else:
             message = await pubsub.get_message(ignore_subscribe_messages=True)
             if message:
